@@ -1,0 +1,33 @@
+<?php /** @noinspection PhpDeprecationInspection */
+
+declare(strict_types=1);
+
+use Infrangible\Logo\ViewModel\Block\Html\Header\MobileLogoSizeResolver;
+use Magento\Theme\Block\Html\Header\Logo;
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2024 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+/** @var Logo $block */
+$storeName = $block->getData('theme_name') ? $block->getData('theme_name') : $block->getLogoAlt();
+/** @var MobileLogoSizeResolver $logoSizeResolver */
+$logoSizeResolver = $block->getData('logo_size_resolver');
+
+$logoWidth = $logoSizeResolver !== null && $logoSizeResolver->getWidth() ? $logoSizeResolver->getWidth() : $block->getLogoWidth();
+$logoHeight = $logoSizeResolver !== null && $logoSizeResolver->getHeight() ? $logoSizeResolver->getHeight() : $block->getLogoHeight();
+?>
+
+<a class="logo mobile"
+   href="<?= $block->escapeUrl($block->getUrl()) ?>"
+   title="<?= $block->escapeHtmlAttr($storeName) ?>"
+   aria-label="store mobile logo">
+    <img src="<?= $block->escapeUrl($block->getLogoSrc()) ?>"
+         title="<?= $block->escapeHtmlAttr($block->getLogoAlt()) ?>"
+         alt="<?= $block->escapeHtmlAttr($block->getLogoAlt()) ?>"
+        <?= $logoWidth ? 'width="' . $block->escapeHtmlAttr($logoWidth) . '"' : '' ?>
+        <?= $logoHeight ? 'height="' . $block->escapeHtmlAttr($logoHeight) . '"' : '' ?>
+    />
+</a>

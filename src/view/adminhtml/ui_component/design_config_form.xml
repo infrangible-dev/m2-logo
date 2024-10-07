@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<!--
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2024 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="other_settings">
+        <fieldset name="header">
+            <field name="header_tablet_logo_src" formElement="imageUploader">
+                <settings>
+                    <label translate="true">Tablet Logo Image</label>
+                    <componentType>imageUploader</componentType>
+                </settings>
+                <formElements>
+                    <imageUploader>
+                        <settings>
+                            <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                            <maxFileSize>2097152</maxFileSize>
+                            <uploaderConfig>
+                                <param xsi:type="string" name="url">theme/design_config_fileUploader/save</param>
+                            </uploaderConfig>
+                        </settings>
+                    </imageUploader>
+                </formElements>
+            </field>
+            <!--suppress XmlDefaultAttributeValue -->
+            <field name="header_tablet_logo_width" formElement="input">
+                <settings>
+                    <validation>
+                        <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    </validation>
+                    <dataType>number</dataType>
+                    <label translate="true">Tablet Logo Attribute Width</label>
+                    <dataScope>header_tablet_logo_width</dataScope>
+                </settings>
+            </field>
+            <!--suppress XmlDefaultAttributeValue -->
+            <field name="header_tablet_logo_height" formElement="input">
+                <settings>
+                    <validation>
+                        <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    </validation>
+                    <dataType>number</dataType>
+                    <label translate="true">Tablet Logo Attribute Height</label>
+                    <dataScope>header_tablet_logo_height</dataScope>
+                </settings>
+            </field>
+            <field name="header_mobile_logo_src" formElement="imageUploader">
+                <settings>
+                    <label translate="true">Mobile Logo Image</label>
+                    <componentType>imageUploader</componentType>
+                </settings>
+                <formElements>
+                    <imageUploader>
+                        <settings>
+                            <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                            <maxFileSize>2097152</maxFileSize>
+                            <uploaderConfig>
+                                <param xsi:type="string" name="url">theme/design_config_fileUploader/save</param>
+                            </uploaderConfig>
+                        </settings>
+                    </imageUploader>
+                </formElements>
+            </field>
+            <!--suppress XmlDefaultAttributeValue -->
+            <field name="header_mobile_logo_width" formElement="input">
+                <settings>
+                    <validation>
+                        <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    </validation>
+                    <dataType>number</dataType>
+                    <label translate="true">Mobile Logo Attribute Width</label>
+                    <dataScope>header_mobile_logo_width</dataScope>
+                </settings>
+            </field>
+            <!--suppress XmlDefaultAttributeValue -->
+            <field name="header_mobile_logo_height" formElement="input">
+                <settings>
+                    <validation>
+                        <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    </validation>
+                    <dataType>number</dataType>
+                    <label translate="true">Mobile Logo Attribute Height</label>
+                    <dataScope>header_mobile_logo_height</dataScope>
+                </settings>
+            </field>
+        </fieldset>
+    </fieldset>
+</form>
