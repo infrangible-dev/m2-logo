@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Theme\Block\Html\Header\Logo;
+use Magento\Theme\ViewModel\Block\Html\Header\LogoSizeResolverInterface;
+
+/**
+ * The logo of a device, like Magento's standard logo, with the device as class: "logo tablet" or "logo mobile". The
+ * device's own width and height apply, else those of the standard logo.
+ *
+ * @var Logo $block
+ * @var Escaper $escaper
+ */
+
+$device = $block->getData('device');
+$device = is_string($device) ? $device : '';
+$logoSizeResolver = $block->getData('logo_size_resolver');
+$logoSizeResolver = $logoSizeResolver instanceof LogoSizeResolverInterface ? $logoSizeResolver : null;
+$logoWidth = $logoSizeResolver?->getWidth() ?: $block->getLogoWidth();
+$logoHeight = $logoSizeResolver?->getHeight() ?: $block->getLogoHeight();
+$logoAlt = (string)$block->getLogoAlt();
+?>
+<a class="logo <?= $escaper->escapeHtmlAttr($device) ?>"
+   href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+   title="<?= $escaper->escapeHtmlAttr($logoAlt) ?>"
+   aria-label="<?= $escaper->escapeHtmlAttr(sprintf('store %s logo', $device)) ?>">
+    <img src="<?= $escaper->escapeUrl($block->getLogoSrc()) ?>"
+         title="<?= $escaper->escapeHtmlAttr($logoAlt) ?>"
+         alt="<?= $escaper->escapeHtmlAttr($logoAlt) ?>"
+        <?php if ($logoWidth): ?>width="<?= $escaper->escapeHtmlAttr((string)$logoWidth) ?>"<?php endif ?>
+        <?php if ($logoHeight): ?>height="<?= $escaper->escapeHtmlAttr((string)$logoHeight) ?>"<?php endif ?>
+    />
+</a>

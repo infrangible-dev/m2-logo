@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
 namespace Infrangible\Logo\Observer;
 
-use Infrangible\Core\Helper\Stores;
-use Infrangible\Logo\ViewModel\Block\Html\Header\MobileLogoPathResolver;
-use Infrangible\Logo\ViewModel\Block\Html\Header\MobileLogoSizeResolver;
-use Infrangible\Logo\ViewModel\Block\Html\Header\TabletLogoPathResolver;
-use Infrangible\Logo\ViewModel\Block\Html\Header\TabletLogoSizeResolver;
+use Infrangible\Logo\ViewModel\Block\Html\Header\DeviceLogoPathResolverFactory;
+use Infrangible\Logo\ViewModel\Block\Html\Header\DeviceLogoSizeResolverFactory;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -16,104 +19,69 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Theme\Block\Html\Header\Logo;
 
 /**
- * @author      Andreas Knollmann
- * @copyright   Copyright (c) 2014-2024 Softwareentwicklung Andreas Knollmann
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ * Adds the logos of tablets and smartphones after the standard logo of the header, if they are uploaded. The styles of
+ * the module show each logo only on the screens of its device.
  */
 class ViewBlockAbstractToHtmlAfter implements ObserverInterface
 {
-    /** @var Stores */
-    protected $storesHelper;
+    /** The devices with an own logo, in the order of their logos after the standard logo. */
+    public const DEVICES = ['tablet', 'mobile'];
 
-    /** @var TabletLogoPathResolver */
-    protected $tabletLogoPathResolver;
+    /** The template of the logos of the devices. */
+    public const TEMPLATE = 'Infrangible_Logo::html/header/device_logo.phtml';
 
-    /** @var TabletLogoSizeResolver */
-    protected $tabletLogoSizeResolver;
-
-    /** @var MobileLogoPathResolver */
-    protected $mobileLogoPathResolver;
-
-    /** @var MobileLogoSizeResolver */
-    protected $mobileLogoSizeResolver;
-
+    /**
+     * @param DeviceLogoPathResolverFactory $pathResolverFactory
+     * @param DeviceLogoSizeResolverFactory $sizeResolverFactory
+     */
     public function __construct(
-        Stores $storesHelper,
-        TabletLogoPathResolver $tabletPathResolver,
-        TabletLogoSizeResolver $tabletSizeResolver,
-        MobileLogoPathResolver $logoPathResolver,
-        MobileLogoSizeResolver $logoSizeResolver
+        protected DeviceLogoPathResolverFactory $pathResolverFactory,
+        protected DeviceLogoSizeResolverFactory $sizeResolverFactory
     ) {
-        $this->storesHelper = $storesHelper;
-
-        $this->tabletLogoPathResolver = $tabletPathResolver;
-        $this->tabletLogoSizeResolver = $tabletSizeResolver;
-        $this->mobileLogoPathResolver = $logoPathResolver;
-        $this->mobileLogoSizeResolver = $logoSizeResolver;
     }
 
     /**
-     * @throws LocalizedException
+     * Adds the logos of the devices to the HTML of the standard logo.
+     *
+     * @param Observer $observer
+     *
+     * @return void
+     * @throws LocalizedException if the logo block has no layout
      */
     public function execute(Observer $observer): void
     {
-        /** @var Logo $block */
-        $block = $observer->getEvent()->getData('block');
+        $event = $observer->getEvent();
+        $block = $event->getData('block');
+        $transport = $event->getData('transport');
 
-        if ($block instanceof Logo && $block->getNameInLayout() === 'logo') {
-            if ($this->storesHelper->getStoreConfig('design/header/tablet_logo_src')) {
-                /** @var Logo $logoBlock */
-                $logoBlock = $block->getLayout()->createBlock(Logo::class);
-
-                $logoBlock->setTemplate('Infrangible_Logo::html/header/tablet_logo.phtml');
-                $logoBlock->setData(
-                    'logoPathResolver',
-                    $this->tabletLogoPathResolver
-                );
-                $logoBlock->setData(
-                    'logo_size_resolver',
-                    $this->tabletLogoSizeResolver
-                );
-
-                /** @var DataObject $transport */
-                $transport = $observer->getEvent()->getData('transport');
-
-                $html = $transport->getData('html');
-
-                $html .= $logoBlock->toHtml();
-
-                $transport->setData(
-                    'html',
-                    $html
-                );
-            }
-
-            if ($this->storesHelper->getStoreConfig('design/header/mobile_logo_src')) {
-                /** @var Logo $logoBlock */
-                $logoBlock = $block->getLayout()->createBlock(Logo::class);
-
-                $logoBlock->setTemplate('Infrangible_Logo::html/header/mobile_logo.phtml');
-                $logoBlock->setData(
-                    'logoPathResolver',
-                    $this->mobileLogoPathResolver
-                );
-                $logoBlock->setData(
-                    'logo_size_resolver',
-                    $this->mobileLogoSizeResolver
-                );
-
-                /** @var DataObject $transport */
-                $transport = $observer->getEvent()->getData('transport');
-
-                $html = $transport->getData('html');
-
-                $html .= $logoBlock->toHtml();
-
-                $transport->setData(
-                    'html',
-                    $html
-                );
-            }
+        if (! $block instanceof Logo || $block->getNameInLayout() !== 'logo' || ! $transport instanceof DataObject) {
+            return;
         }
+
+        $html = $transport->getData('html');
+        $html = is_string($html) ? $html : '';
+
+        foreach (self::DEVICES as $device) {
+            $pathResolver = $this->pathResolverFactory->create(['device' => $device]);
+
+            if ($pathResolver->getPath() === null) {
+                continue;
+            }
+
+            $logoBlock = $block->getLayout()->createBlock(Logo::class);
+
+            if (! $logoBlock instanceof Logo) {
+                continue;
+            }
+
+            $logoBlock->setTemplate(self::TEMPLATE);
+            $logoBlock->setData('device', $device);
+            $logoBlock->setData('logoPathResolver', $pathResolver);
+            $logoBlock->setData('logo_size_resolver', $this->sizeResolverFactory->create(['device' => $device]));
+
+            $html .= $logoBlock->toHtml();
+        }
+
+        $transport->setData('html', $html);
     }
 }

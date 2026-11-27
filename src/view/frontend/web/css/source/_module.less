@@ -1,38 +1,39 @@
 /**
  * @author      Andreas Knollmann
- * @copyright   Copyright (c) 2014-2024 Softwareentwicklung Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2026 Softwareentwicklung Andreas Knollmann
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  */
 
-//noinspection LessUnresolvedVariable
-@media screen and (max-width: 768px) {
-    .logo {
+//  The logos of tablets and smartphones follow the standard logo and are shown only on the screens of their devices.
+//  Smartphones show their own logo, else the logo of tablets; tablets show their own logo. The standard logo is shown
+//  where no logo of the device replaces it.
+& when (@media-common = true) {
+    .logo.tablet,
+    .logo.mobile {
         display: none;
-    }
-
-    .logo:last-of-type {
-        display: block;
     }
 }
 
-//noinspection LessUnresolvedVariable
-@media screen and (min-width: 769px) and (max-width: 1023px) {
-    .logo {
-        display: none;
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__m) {
+    .logo.mobile,
+    .logo.tablet:not(:has(~ .logo.mobile)) {
+        display: block;
     }
 
-    .logo:nth-last-of-type(2) {
-        display: block;
+    .logo:not(.tablet, .mobile):has(~ .logo.tablet, ~ .logo.mobile),
+    .logo.tablet:has(~ .logo.mobile) {
+        display: none;
     }
 }
 
-//noinspection LessUnresolvedVariable
-@media screen and (min-width: 1024px) {
-    .logo {
-        display: none;
-    }
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    @media (max-width: (@screen__l - 1)) {
+        .logo.tablet {
+            display: block;
+        }
 
-    .logo:first-of-type {
-        display: block;
+        .logo:not(.tablet, .mobile):has(~ .logo.tablet) {
+            display: none;
+        }
     }
 }
